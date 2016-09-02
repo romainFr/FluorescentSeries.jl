@@ -92,9 +92,28 @@ function getindex(fs::FluorescentSerie,n::RealIndex,ro::RealIndex)
     FluorescentSerie(getindex(fs.raw,n,ro),getindex(fs.timeframe,n),fs.rois,fs.avg,fs.meta)
 end
 
+function getindex(fs::FluorescentSerie,n::Real,ro::RealIndex)
+    FluorescentSerie(getindex(fs.raw,n:n,ro),getindex(fs.timeframe,n:n),fs.rois,fs.avg,fs.meta)
+end
+
+function getindex(fs::FluorescentSerie,n::Real,ro::Real)
+    FluorescentSerie(getindex(fs.raw,n:n,ro:ro),getindex(fs.timeframe,n:n),fs.rois,fs.avg,fs.meta)
+end
+
+function getindex(fs::FluorescentSerie,n::RealIndex,ro::Real)
+    FluorescentSerie(getindex(fs.raw,n,ro:ro),getindex(fs.timeframe,n),fs.rois,fs.avg,fs.meta)
+end
+
+
 ## In case only one column is present.
 function getindex(fs::FluorescentSerie,n::RealIndex)
-    FluorescentSerie(getindex(fs.raw,n),getindex(fs.timeframe,n),fs.rois,fs.avg,fs.meta)
+    size(fs)[2] != 1 ? error("Dimension mismatch - serie has more than one ROI."):
+    FluorescentSerie(getindex(fs.raw,n,:),getindex(fs.timeframe,n),fs.rois,fs.avg,fs.meta)
+end
+
+function getindex(fs::FluorescentSerie,n::Real)
+    size(fs)[2] != 1 ? error("Dimension mismatch - serie has more than one ROI."):
+    FluorescentSerie(getindex(fs.raw,n:n,:),getindex(fs.timeframe,n:n),fs.rois,fs.avg,fs.meta)
 end
 
 ## SetIndex
@@ -102,8 +121,26 @@ function setindex!(fs::FluorescentSerie,X,n::RealIndex,ro::RealIndex)
     FluorescentSerie(setindex!(fs.raw,X,n,ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
 end
 
+function setindex!(fs::FluorescentSerie,X,n::Real,ro::RealIndex)
+    FluorescentSerie(setindex!(fs.raw,X,n:n,ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
+end
+
+function setindex!(fs::FluorescentSerie,X,n::RealIndex,ro::Real)
+    FluorescentSerie(setindex!(fs.raw,X,n,ro:ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
+end
+
+function setindex!(fs::FluorescentSerie,X,n::Real,ro::Real)
+    FluorescentSerie(setindex!(fs.raw,X,n:n,ro:ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
+end
+
 function setindex!(fs::FluorescentSerie,X,n::RealIndex)
+    size(fs)[2] != 1 ? error("Dimension mismatch - serie has more than one ROI."):
     FluorescentSerie(setindex!(fs.raw,X,n),fs.timeframe,fs.rois,fs.avg,fs.meta)
+end
+
+function setindex!(fs::FluorescentSerie,X,n::Real)
+    size(fs)[2] != 1 ? error("Dimension mismatch - serie has more than one ROI."):
+    FluorescentSerie(setindex!(fs.raw,X,n:n),fs.timeframe,fs.rois,fs.avg,fs.meta)
 end
 
 
@@ -118,7 +155,7 @@ avgImage(fs::FluorescentSerie) = fs.avg
 
 metadata(fs::FluorescentSerie) = fs.meta
 
-## Concatenation
+## Concatenation ##TO WRITE FOR ARBITRARY NUMBER OF SERIES
 function hcat(fs::FluorescentSerie,gs::FluorescentSerie)
     fs.timeframe != gs.timeframe ? error("Can only concatenate ROI series with the same timebase."):
     avg = (fs.avg + gs.avg)/2
@@ -132,27 +169,32 @@ function vcat(fs::FluorescentSerie,gs::FluorescentSerie)
     FluorescentSerie(vcat(fluo(fs),fluo(gs)),timeframe,fs.rois,avg,(fs.meta,gs.meta))
 end
 
+##
+copy(fs::FluorescentSerie) = FluorescentSerie(copy(fs.raw),copy(fs.timeframe),copy(fs.rois),copy(fs.avg),fs.meta)
 
 ## Others
 ## Quantile, useful for baseline calculations
 function quantile(fs::FluorescentSerie,p)
     results = Array{Float64}(size(fs)[2])
     for i in 1:size(fs)[2]
-        results[i] = quantile(fs.raw,p)
+        results[i] = quantile(fs.raw[:,i],p)
     end
     results
 end
 
 ## DeltaF/F
-function deltaFF!(fs::FluorescentSerie,Fo::Array{Float64,1},B::Float64=0)
+function deltaFF!(fs::FluorescentSerie,Fo::Array{Float64,1},B::Float64=0.0)
     length(Fo) != size(fs)[2] ? error("Fo vector should be the same length as the number of ROIs in the series."):
     for i in eachindex(Fo)
-        fs[:,i] = (fs[:,i] .- Fo[i])./(Fo[i]-B)
+        fs[i:i,:] = (fs[i:i,:] .- Fo[i])./(Fo[i]-B)
     end
     fs
 end
 
-deltaFF(fs::FluorescentSerie,Fo::Array{Float64,1},B::Float64=0) = deltaFF!(copy(fs),Fo,B)
+deltaFF(fs::FluorescentSerie,Fo::Array{Float64,1},B::Float64=0.0) = deltaFF!(copy(fs),Fo,B)
 
 ### TODO :
+# algorithm (add, substract etc)
+
+
 # - Plots.jl recipes

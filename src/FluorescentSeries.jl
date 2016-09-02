@@ -1,6 +1,6 @@
 module FluorescentSeries
 
-import Base: getindex,hcat,quantile,length,setindex!,size,vcat
+import Base: copy,getindex,hcat,quantile,length,setindex!,size,vcat
 # package code goes here
 include("core.jl")
 
