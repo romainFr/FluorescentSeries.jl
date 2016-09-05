@@ -121,16 +121,16 @@ function setindex!(fs::FluorescentSerie,X,n::RealIndex,ro::RealIndex)
     FluorescentSerie(setindex!(fs.raw,X,n,ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
 end
 
+function setindex!(fs::FluorescentSerie,X,n::Real,ro::Real)
+    FluorescentSerie(setindex!(fs.raw,X,n:n,ro:ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
+end
+
 function setindex!(fs::FluorescentSerie,X,n::Real,ro::RealIndex)
     FluorescentSerie(setindex!(fs.raw,X,n:n,ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
 end
 
 function setindex!(fs::FluorescentSerie,X,n::RealIndex,ro::Real)
     FluorescentSerie(setindex!(fs.raw,X,n,ro:ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
-end
-
-function setindex!(fs::FluorescentSerie,X,n::Real,ro::Real)
-    FluorescentSerie(setindex!(fs.raw,X,n:n,ro:ro),fs.timeframe,fs.rois,fs.avg,fs.meta)
 end
 
 function setindex!(fs::FluorescentSerie,X,n::RealIndex)
@@ -142,7 +142,6 @@ function setindex!(fs::FluorescentSerie,X,n::Real)
     size(fs)[2] != 1 ? error("Dimension mismatch - serie has more than one ROI."):
     FluorescentSerie(setindex!(fs.raw,X,n:n),fs.timeframe,fs.rois,fs.avg,fs.meta)
 end
-
 
 ## Accessors
 times(fs::FluorescentSerie) = fs.timeframe
@@ -171,30 +170,6 @@ end
 
 ##
 copy(fs::FluorescentSerie) = FluorescentSerie(copy(fs.raw),copy(fs.timeframe),copy(fs.rois),copy(fs.avg),fs.meta)
-
-## Others
-## Quantile, useful for baseline calculations
-function quantile(fs::FluorescentSerie,p)
-    results = Array{Float64}(size(fs)[2])
-    for i in 1:size(fs)[2]
-        results[i] = quantile(fs.raw[:,i],p)
-    end
-    results
-end
-
-## DeltaF/F
-function deltaFF!(fs::FluorescentSerie,Fo::Array{Float64,1},B::Float64=0.0)
-    length(Fo) != size(fs)[2] ? error("Fo vector should be the same length as the number of ROIs in the series."):
-    for i in eachindex(Fo)
-        fs[i:i,:] = (fs[i:i,:] .- Fo[i])./(Fo[i]-B)
-    end
-    fs
-end
-
-deltaFF(fs::FluorescentSerie,Fo::Array{Float64,1},B::Float64=0.0) = deltaFF!(copy(fs),Fo,B)
-
-### TODO :
-# algorithm (add, substract etc)
 
 
 # - Plots.jl recipes
