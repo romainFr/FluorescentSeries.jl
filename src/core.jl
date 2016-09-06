@@ -89,19 +89,19 @@ typealias RealIndex{T<:Real} Union{T, AbstractVector{T}, Colon}
 ## GetIndex
 ## One,one
 function getindex(fs::FluorescentSerie,n::RealIndex,ro::RealIndex)
-    FluorescentSerie(getindex(fs.raw,n,ro),getindex(fs.timeframe,n),fs.rois,fs.avg,fs.meta)
+    FluorescentSerie(getindex(fs.raw,n,ro),getindex(fs.timeframe,n),fs.rois[ro],fs.avg,fs.meta)
 end
 
 function getindex(fs::FluorescentSerie,n::Real,ro::RealIndex)
-    FluorescentSerie(getindex(fs.raw,n:n,ro),getindex(fs.timeframe,n:n),fs.rois,fs.avg,fs.meta)
+    FluorescentSerie(getindex(fs.raw,n:n,ro),getindex(fs.timeframe,n:n),fs.rois[ro],fs.avg,fs.meta)
 end
 
 function getindex(fs::FluorescentSerie,n::Real,ro::Real)
-    FluorescentSerie(getindex(fs.raw,n:n,ro:ro),getindex(fs.timeframe,n:n),fs.rois,fs.avg,fs.meta)
+    FluorescentSerie(getindex(fs.raw,n:n,ro:ro),getindex(fs.timeframe,n:n),fs.rois[ro:ro],fs.avg,fs.meta)
 end
 
 function getindex(fs::FluorescentSerie,n::RealIndex,ro::Real)
-    FluorescentSerie(getindex(fs.raw,n,ro:ro),getindex(fs.timeframe,n),fs.rois,fs.avg,fs.meta)
+    FluorescentSerie(getindex(fs.raw,n,ro:ro),getindex(fs.timeframe,n),fs.rois[ro:ro],fs.avg,fs.meta)
 end
 
 

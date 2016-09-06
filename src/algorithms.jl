@@ -144,9 +144,8 @@ end
 ## DeltaF/F
 function deltaFF!(fs::FluorescentSerie,Fo::Array{Float64,1},B::Float64=0.0)
     length(Fo) != size(fs)[2] ? error("Fo vector should be the same length as the number of ROIs in the series."):
-    for i in eachindex(Fo)
-        fs[i:i,:] = (fs[i:i,:] .- Fo[i])./(Fo[i]-B)
-    end
+    Fo = Fo.'
+    fs = (fs .- Fo)./(Fo-B)
     fs
 end
 
