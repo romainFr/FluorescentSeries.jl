@@ -37,7 +37,7 @@ function FluorescentSerie{T<:Number,N,N2}(rawImage::AbstractArray{T,N2},roiIm::A
             results[j,i] = summaryFunc(slicedim(rawImage,N2,j)[rois[i]])
         end
     end
-    timeframe = collect(0:period:((nt-1)*period))
+    timeframe = collect(range(0,period,nt))
     
     FluorescentSerie(results,timeframe,rois,avg,meta)
 end
@@ -54,7 +54,7 @@ function FluorescentSerie{T<:Number,N,N2}(rawImage::AbstractArray{T,N2},rois::Ar
             results[j,i] = summaryFunc(slicedim(rawImage,N2,j)[rois[i]])
         end
     end
-    timeframe = collect(0:period:((nt-1)*period))
+    timeframe = collect(range(0,period,nt))
     
     FluorescentSerie(results,timeframe,rois,avg,meta)
 end
@@ -115,6 +115,9 @@ function getindex(fs::FluorescentSerie,n::Real)
     size(fs)[2] != 1 ? error("Dimension mismatch - serie has more than one ROI."):
     FluorescentSerie(getindex(fs.raw,n:n,:),getindex(fs.timeframe,n:n),fs.rois,fs.avg,fs.meta)
 end
+
+## BitArray
+
 
 ## SetIndex
 function setindex!(fs::FluorescentSerie,X,n::RealIndex,ro::RealIndex)
