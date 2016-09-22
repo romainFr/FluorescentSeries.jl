@@ -79,6 +79,15 @@ function FluorescentSerie{T<:Number,N,N2}(rawImage::AbstractArray{T,N2},rois::Ab
     FluorescentSerie(rawImage,rois,nothing,period,summaryFunc)
 end
 
+function FluorescentSerie{T<:Number,N,N2}(rawImage::AbstractArray{T,N2},rois::AbstractArray{Int64,N},avg::AbstractArray{Float64,N},meta::Any,summaryFunc::Function=sum)
+    period = rawImage["period"]
+    FluorescentSerie(rawImage,rois,avg,meta,period,summaryFunc)
+end
+
+function FluorescentSerie{T<:Number,N,N2}(rawImage::AbstractArray{T,N2},rois::AbstractArray{Int64,N},meta::Any,summaryFunc::Function=sum)
+    period = rawImage["period"]
+    FluorescentSerie(rawImage,rois,meta,period,summaryFunc)
+end
 
 ### Methods
 length(fs::AbstractFluorescentSerie) = length(fs.timeframe)
