@@ -122,6 +122,7 @@ function (.^)(fs::FluorescentSerie,n::AbstractArray)
     fs
 end
 
+## Math functions
 for func in (:sin,:cos,:tan,:asin,:acos,:atan,:sinh,:cosh,:tanh,:asinh,:acosh,
              :atanh,:exp,:log,:log2,:log10,:sqrt,:lgamma,:log1p,:erf,:erfc)
     @eval begin
@@ -129,9 +130,9 @@ for func in (:sin,:cos,:tan,:asin,:acos,:atan,:sinh,:cosh,:tanh,:asinh,:acosh,
             fs.raw = $func(fs.raw)
             fs
         end
+        end
     end
-end
-
+    
 ## Quantile, useful for baseline calculations
 function quantile(fs::FluorescentSerie,p)
     results = Array{Float64}(size(fs)[2])

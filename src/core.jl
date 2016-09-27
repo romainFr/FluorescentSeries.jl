@@ -166,18 +166,19 @@ avgImage(fs::FluorescentSerie) = fs.avg
 
 metadata(fs::FluorescentSerie) = fs.meta
 
-## Concatenation ##TO WRITE FOR ARBITRARY NUMBER OF SERIES
-function hcat(fs::FluorescentSerie,gs::FluorescentSerie)
-    fs.timeframe != gs.timeframe ? error("Can only concatenate ROI series with the same timebase."):
-    avg = (fs.avg + gs.avg)/2
-    FluorescentSerie(hcat(fluo(fs),fluo(gs)),times(fs),vcat(fs.rois,gs.rois),avg,(fs.meta,gs.meta))
+## Concatenation 
+function hcat(fs::FluorescentSerie...)
+    any(x -> x.timeframe != fs[1].timeframe,fs) ? error("Can only concatenate ROI series with the same timebase."):
+    avg = mean([x.avg for x in fs])
+    FluorescentSerie(hcat([x.raw for x in fs]...),times(fs[1]),vcat([x.rois for x in fs]...),avg,(unique([x.meta for x in fs])...))
 end
 
-function vcat(fs::FluorescentSerie,gs::FluorescentSerie)
-    fs.rois != gs.rois ? error("Can only concatenate if the series have the same ROIs"):
-    timeframe = [fs.timeframe;gs.timeframe+fs.timeframe[end]+gs.timeframe[1]]
-    avg = (fs.avg + gs.avg)/2
-    FluorescentSerie(vcat(fluo(fs),fluo(gs)),timeframe,fs.rois,avg,(fs.meta,gs.meta))
+function vcat(fs::FluorescentSerie...)
+    any(x -> x.rois != fs[1].rois,fs) ? error("Can only concatenate if the series have the same ROIs"):
+    timelags = cumsum([0;[x.timeframe[end] for x in fs][1:end-1]])
+    timeframe = vcat([x.timeframe for x in fs] .+ timelags...)
+    avg = mean([x.avg for x in fs])
+    FluorescentSerie(vcat([x.raw for x in fs]...),timeframe,fs[1].rois,avg,(unique([x.meta for x in fs])...))
 end
 
 ##
