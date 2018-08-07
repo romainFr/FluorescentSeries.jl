@@ -13,7 +13,7 @@ end
 
 # Constructing from a ROI image and the raw data
 function FluorescentSerie(rawImage::AxisArray,roiIm::AbstractArray{Int64},summaryFunc::Function=sum)
-    size_spatial(rawImage) != size(roiIm) ? error("ROI image has a different size than the data"):
+    size_spatial(rawImage) != size(roiIm) ? error("ROI image has a different size than the data") :
     rois = Array{Array{Int64,1},1}(maximum(roiIm))
     for i in 1:maximum(roiIm)
         rois[i] = find(roiIm.==i)
