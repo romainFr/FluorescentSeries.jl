@@ -16,7 +16,7 @@ function FluorescentSerie(rawImage::AxisArray,roiIm::AbstractArray{Int64},summar
     size_spatial(rawImage) != size(roiIm) ? error("ROI image has a different size than the data") :
     rois = Array{Array{Int64,1},1}(maximum(roiIm))
     for i in 1:maximum(roiIm)
-        rois[i] = find(roiIm.==i)
+        rois[i] = findall(roiIm.==i)
     end
     FluorescentSerie(rawImage,rois,summaryFunc)
 end
