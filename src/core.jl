@@ -22,10 +22,11 @@ function FluorescentSerie(rawImage::AxisArray,roiIm::AbstractArray{Int64},summar
 end
 
 # Constructing from an Array and  associated metadata
-function FluorescentSerie(img::AbstractArray,framesPerTrial,samplingTime,rois::Array{Array{CartesianIndex{3},1},1},summaryFunc::Function=sum)
+function FluorescentSerie(img::AbstractArray,framesPerTrial,samplingTime,rois::Array{Array{CartesianIndex{N},1},1},summaryFunc::Function=sum) where N
     
     nMax = maximum(framesPerTrial)
-    results = zeros(Float64,(nMax,length(rois),length(framesPerTrial)))
+    results = Array{Union{Missing, Float64}}(missing,nMax,length(rois),length(framesPerTrial))
+    #results = zeros(Float64,(nMax,length(rois),length(framesPerTrial)))
     ax = range(0,step=samplingTime,length=nMax)
     for i in eachindex(rois)
         startPoint = 0
