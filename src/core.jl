@@ -22,12 +22,11 @@ function FluorescentSerie(rawImage::AxisArray,roiIm::AbstractArray{Int64},summar
 end
 
 # Constructing from an Array and  associated metadata
-function FluorescentSerie(img::AbstractArray,metadata::Dict,rois::Array{Array{CartesianIndex{3},1},1},summaryFunc::Function=sum)
+function FluorescentSerie(img::AbstractArray,framesPerTrial,samplingTime,rois::Array{Array{CartesianIndex{3},1},1},summaryFunc::Function=sum)
     
-    framesPerTrial = metadata["framesPerTrial"]
     nMax = maximum(framesPerTrial)
     results = zeros(Float64,(nMax,length(rois),length(framesPerTrial)))
-    ax = range(0,step=metadata["samplingTime"],length=nMax)
+    ax = range(0,step=samplingTime,length=nMax)
     for i in eachindex(rois)
         startPoint = 0
         roiIm = img[rois[i],:]
@@ -43,11 +42,11 @@ function FluorescentSerie(img::AbstractArray,metadata::Dict,rois::Array{Array{Ca
 end
 
 
-function FluorescentSerie(rawImage::AbstractArray,metadata::Dict,roiIm::AbstractArray{Int64},summaryFunc::Function=sum)
-    size(rawImage)[1:3] != size(roiIm)[1:3] ? error("ROI image has a different size than the data") :
-    rois = Array{Array{CartesianIndex{3},1},1}(undef,maximum(roiIm))
+function FluorescentSerie(rawImage::AbstractArray,framesPerTrial,samplingTime,roiIm::AbstractArray{Int64},summaryFunc::Function=sum)
+    size(rawImage)[1:(end-1)] != size(roiIm) ? error("ROI image has a different size than the data") :
+    rois = Array{Array{CartesianIndex{ndims(roiIm)},1},1}(undef,maximum(roiIm))
     for i in 1:maximum(roiIm)
-        rois[i] = findall(roiIm[:,:,:,1].==i)
+        rois[i] = findall(roiIm.==i)
     end
-    FluorescentSerie(rawImage,metadata,rois,summaryFunc)
+    FluorescentSerie(rawImage,framesPerTrial,samplingTime,rois,summaryFunc)
 end
